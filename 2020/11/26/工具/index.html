@@ -19,7 +19,7 @@
   <meta name="description" content="">
   <meta name="author" content="Yao Fan">
   <meta name="keywords" content="">
-  <title>Hello World - Hexo</title>
+  <title>工具 - Hexo</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.3/css/bootstrap.min.css" />
 
@@ -164,7 +164,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="Hello World">
+            <span class="h2" id="subtitle" title="工具">
               
             </span>
 
@@ -174,8 +174,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2020-11-17 23:59" pubdate>
-        2020年11月17日 晚上
+      <time datetime="2020-11-26 16:27" pubdate>
+        2020年11月26日 下午
       </time>
     </span>
   
@@ -186,7 +186,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      75 字
+      955 字
     </span>
   
 
@@ -196,7 +196,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1
+      14
        分钟
     </span>
   
@@ -226,27 +226,196 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">Hello World</h1>
+            <h1 style="display: none">工具</h1>
             
             <div class="markdown-body">
-              <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="hljs bash">$ hexo new <span class="hljs-string">&quot;My New Post&quot;</span></code></pre>
+              <h1 id="mmall"><a href="#mmall" class="headerlink" title="mmall"></a>mmall</h1><h2 id="vsftpd的配置"><a href="#vsftpd的配置" class="headerlink" title="vsftpd的配置"></a>vsftpd的配置</h2><ul>
+<li><p>安装</p>
+<pre><code class="hljs bash">yum -y install vfstpd
+rpm -qa | grep * <span class="hljs-comment"># 查看是否安装了某软件</span></code></pre>
+</li>
+<li><p>默认配置文件在/etc/vsftpd/vfstpd.conf</p>
+</li>
+<li><p>创建虚拟用户</p>
+<pre><code class="hljs bash">sudo mkdir ftpfile
+sudo useradd ftpuser -d /ftpfile -s /sbin/nologin
+sudo chown -R ftpuser.ftpuser /ftpfile/
+sudo passwd ftpuser
+<span class="hljs-comment"># 配置</span>
+<span class="hljs-built_in">cd</span> /etc/vsftpd
+<span class="hljs-comment"># 配置vsftpd</span>
+sudo vim /etc/vsftpd/vsftpd.conf
+sudo vim chroot_list 新增ftpuser
+sudo vim /etc/selinux/config修改为SELINUX=disabled
+sudo setenforce 0
+<span class="hljs-comment"># 验证的时候碰到550拒绝访问执行</span>
+sudo setsebool -P ftp_home_dir 1
+<span class="hljs-comment"># 设置开机启动</span>
+sudo chkconfig vsftpd on</code></pre>
+</li>
+<li><p>防火墙配置</p>
+<pre><code class="hljs bash">sudo vim /etc/sysconfig/iptables
+<span class="hljs-comment"># 配置如下</span>
+-A INPUT -p tcp --dport 61001:62000 -j ACCEPT
+-A OUTPUT -p tcp --sport 61001:62000 -j ACCEPT
+-A INPUT -p tcp --dport 20 -j ACCEPT
+-A OUTPUT -p tcp --dport 20 -j ACCEPT
+-A INPUT -p tcp --dport 21 -j ACCEPT
+-A OUTPUT -p tcp --dport 21 -j ACCEPT
+  
+<span class="hljs-comment"># 保存退出，重启防火墙</span>
+sudo service iptables restart
+<span class="hljs-comment"># vfstpd验证</span>
+sudo service vsftpd restart
+<span class="hljs-comment"># 查看ip，在浏览器进行登录验证</span>
+ftp://ip</code></pre>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="hljs bash">$ hexo server</code></pre>
+</li>
+</ul>
+<h2 id="Nginx的安装配置"><a href="#Nginx的安装配置" class="headerlink" title="Nginx的安装配置"></a>Nginx的安装配置</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><ul>
+<li>可直接支持Rails和PHP的程序</li>
+<li>可作为http反向代理服务器</li>
+<li>可作为邮件代理服务器</li>
+<li>作为负载均衡服务器</li>
+<li>帮助实现前后端动静分离</li>
+</ul>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><pre><code class="hljs bash"><span class="hljs-comment"># 安装依赖,nginx默认安装在/usr/local/nginx</span>
+sudo yum install gcc
+sudo yum install pcre-devel
+sudo yum install zlib zlib-devel
+<span class="hljs-comment"># 安装openssl,若需要支持ssl,才需安装openssl</span>
+sudo yum install openssl openssl-devel
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="hljs bash">$ hexo generate</code></pre>
+<span class="hljs-comment"># Nginx常用命令</span>
+sudo <span class="hljs-variable">$&#123;nginx&#125;</span>/sbin/nginx -t <span class="hljs-comment"># 测试配置文件</span>
+sudo <span class="hljs-variable">$&#123;nginx&#125;</span>/sbin/nginx <span class="hljs-comment"># 启动</span>
+sudo <span class="hljs-variable">$&#123;nginx&#125;</span>/sbin/nginx -s stop <span class="hljs-comment"># 停止</span>
+sudo nginx -s quit <span class="hljs-comment"># 停止</span>
+sudo <span class="hljs-variable">$&#123;nginx&#125;</span>/sbin/nginx -s reload <span class="hljs-comment"># 重启</span>
+sudo ps -ef | grep nginx <span class="hljs-comment"># 查看进程命令</span>
+sudo <span class="hljs-built_in">kill</span> -HUP pid <span class="hljs-comment"># 平滑重启</span>
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="hljs bash">$ hexo deploy</code></pre>
+<span class="hljs-comment"># 增加防火墙访问权限</span>
+sudo vim /etc/sysconfig/iptables
+<span class="hljs-comment"># 加入配置</span>
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+<span class="hljs-comment"># 重启防火墙</span>
+sudo service iptables restart
 
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<span class="hljs-comment"># 配置步骤</span>
+sudo vim /usr/<span class="hljs-built_in">local</span>/nginx/conf/nginx.conf
+<span class="hljs-comment"># 在以上文件中添加</span>
+include vhost/*.conf
+
+<span class="hljs-comment"># 在/usr/local/nginx/conf/新建vhost文件夹</span>
+/usr/<span class="hljs-built_in">local</span>/nginx/conf/vhost</code></pre>
+
+<h2 id="安装jdk"><a href="#安装jdk" class="headerlink" title="安装jdk"></a>安装jdk</h2><ul>
+<li><p>清理系统默认自带jdk</p>
+<pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 查看自带的jdk</span>
+rpm -qa | grep jdk
+<span class="hljs-meta">#</span><span class="bash"> 之后进行卸载</span>
+sudo yun remove xxx
+<span class="hljs-meta">#</span><span class="bash"> 修改权限</span>
+sudo a+x jdk7.rpm
+<span class="hljs-meta">#</span><span class="bash"> 安装,默认路径/usr/<span class="hljs-built_in">local</span></span>
+sudo rpm -ivh jdk7.rpm
+<span class="hljs-meta">#</span><span class="bash"> 配置环境变量</span>
+sudo vim /etc/profile
+<span class="hljs-meta">#</span><span class="bash"> 添加以下内容</span>
+export JAVA_HOME=/usr/java/jdk1.7.0_80
+export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+export CATALINA_HOME=/home/yaofan/tomcat
+export PATH=$JAVA_HOME/bin:$PATH:$CATALINA_HOME/bin</code></pre>
+
+</li>
+</ul>
+<h2 id="安装tomcat"><a href="#安装tomcat" class="headerlink" title="安装tomcat"></a>安装tomcat</h2><ul>
+<li><p>下载之后配置环境变量</p>
+<pre><code class="hljs shell">sudo vim /etc/profile
+<span class="hljs-meta">#</span><span class="bash"> 在最下方添加</span>
+export CATALINA_HOME=tomcat path
+<span class="hljs-meta">#</span><span class="bash"> 配置UTF-8字符集</span>
+cd $&#123;CATALINA_HOME&#125;/conf
+sudo vim server.xml
+<span class="hljs-meta">#</span><span class="bash"> 找到配置8080默认端口的位置，在xml节点末尾增加URIEncoding=<span class="hljs-string">&quot;UTF-8&quot;</span></span></code></pre>
+
+</li>
+</ul>
+<h2 id="安装Mysql"><a href="#安装Mysql" class="headerlink" title="安装Mysql"></a>安装Mysql</h2><ul>
+<li><p>安装</p>
+<pre><code class="hljs bash">sudo yum -y install mysql mysql-server mysql-devel
+sudo service mysqld start
+<span class="hljs-comment"># 进入mysql</span>
+mysql -u root
+<span class="hljs-comment"># 修改密码</span>
+use mysql;
+update user <span class="hljs-built_in">set</span> password=password(<span class="hljs-string">&#x27;root&#x27;</span>) <span class="hljs-built_in">where</span> user=<span class="hljs-string">&#x27;root&#x27;</span>;
+<span class="hljs-comment"># 开放远程登录权限</span>
+GRANT ALL PRIVILEGES ON * . * TO <span class="hljs-string">&#x27;root&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span> IDENTIFIED BY <span class="hljs-string">&#x27;root&#x27;</span> WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+<span class="hljs-comment"># 默认配置文件在/etc/my.cnf</span>
+<span class="hljs-comment"># 配置字符集</span>
+sudo vim /etc/my.cnf
+<span class="hljs-comment"># 添加配置,在mysqld节点下添加</span>
+default-character-set=utf8
+character-set-server=utf8
+<span class="hljs-comment"># 自启动配置</span>
+sudo chkconfig mysqld on
+<span class="hljs-comment"># 防火墙配置</span>
+sudo vim /etc/sysconfig/iptables
+<span class="hljs-comment"># 添加配置,开放3306端口</span>
+-A INPUT -p tcp -m tcp --dport 3306 -j ACCEPT</code></pre>
+
+</li>
+</ul>
+<h2 id="Git的配置"><a href="#Git的配置" class="headerlink" title="Git的配置"></a>Git的配置</h2><ul>
+<li><p>Git初始化配置</p>
+<pre><code class="hljs bash">git config --global user.name <span class="hljs-string">&quot;yaofan&quot;</span>
+git config --global user.email <span class="hljs-string">&quot;yaofan97@gmail&quot;</span></code></pre>
+</li>
+<li><p>设置SSH Key</p>
+<pre><code class="hljs bash">ssh-keygen -t rsa -C <span class="hljs-string">&quot;yaofan97@gmail&quot;</span></code></pre>
+</li>
+<li><p>查看公钥</p>
+<pre><code class="hljs bash">cat ~/.ssh/id_rsa.pub</code></pre>
+</li>
+<li><p>与github通信</p>
+<pre><code class="hljs bash">ssh -T git@github.com</code></pre>
+</li>
+<li><p>常见Git操作</p>
+<pre><code class="hljs bash"><span class="hljs-comment"># git初始化</span>
+git init
+<span class="hljs-comment"># 查看状态</span>
+git status
+<span class="hljs-comment"># 添加文件</span>
+git add .
+<span class="hljs-comment"># 本地提交</span>
+git commit -am <span class="hljs-string">&#x27;first commit init project&#x27;</span>
+<span class="hljs-comment"># 添加远程仓库</span>
+git remote add origin + URL
+<span class="hljs-comment"># 将本地推送到远程仓库,-f强制推送</span>
+git push -u origin master、
+<span class="hljs-comment"># 查看远程分支</span>
+git branch -r
+<span class="hljs-comment"># 创建分支</span>
+git checkout -b v1.0 origin/master
+<span class="hljs-comment"># 推送分支到远程</span>
+git push origin HEAD -u</code></pre>
+</li>
+</ul>
 
             </div>
             <hr>
             <div>
               <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux/">Linux</a>
+                    
+                  </div>
                 
                 
               </div>
@@ -258,15 +427,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2020/11/26/%E5%B7%A5%E5%85%B7/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">工具</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2020/11/17/hello-world/">
+                        <span class="hidden-mobile">Hello World</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
